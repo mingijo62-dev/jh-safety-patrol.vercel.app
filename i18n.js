@@ -89,6 +89,8 @@ const UI = {
   sh_leave:  ["연차·휴가", "Leave", "Nghỉ phép", "छुट्टी", "Cuti", "ลาพักร้อน", "休假"],
   sh_edu:    ["교육", "Training", "Đào tạo", "तालिम", "Pelatihan", "อบรม", "培训"],
 
+  focus:     ["이번 주 중점 점검:", "Focus this week:", "Trọng tâm tuần này:", "यस हप्ताको मुख्य जाँच:", "Fokus minggu ini:", "จุดตรวจหลักสัปดาห์นี้:", "本周重点检查："],
+
   /* 시정조치 페이지 */
   back:      ["← 안전순찰 메인", "← Safety patrol home", "← Trang chính", "← मुख्य पृष्ठ", "← Beranda", "← หน้าหลัก", "← 返回首页"],
   cTitle:    ["📋 시정조치 요구 · 완료 현황", "📋 Corrective actions", "📋 Biện pháp khắc phục", "📋 सुधार कार्य", "📋 Tindakan perbaikan", "📋 การแก้ไขข้อบกพร่อง", "📋 整改要求及完成情况"],

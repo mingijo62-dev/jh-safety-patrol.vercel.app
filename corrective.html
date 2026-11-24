@@ -116,6 +116,8 @@ dt{color:var(--sub)} dd{margin:0}
 <div id="print"></div>
 
 <script src="i18n.js"></script>
+<script src="lib/xlsx.core.min.js"></script>
+<script src="content.js"></script>
 <script>
 /* ===================================================
    ▼ 안전팀이 수정하는 부분
@@ -299,7 +301,7 @@ $("#list").addEventListener("click", e => {
 $("#printAll").onclick = () => printItems(ITEMS.filter(i => filter==="all" || status(i)[0]===filter));
 $("#printBlank").onclick = () => printItems([{}]);
 I18N.mountPicker($("#lang"), render);
-render();
+SiteContent.load().then(c => { if (c && c.items) ITEMS.splice(0, ITEMS.length, ...c.items); }).finally(render);
 </script>
 </body>
 </html>

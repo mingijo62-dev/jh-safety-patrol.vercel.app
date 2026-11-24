@@ -194,6 +194,8 @@ textarea{min-height:90px}
 </dialog>
 
 <script src="i18n.js"></script>
+<script src="lib/xlsx.core.min.js"></script>
+<script src="content.js"></script>
 <script>
 /* ===================================================
    ▼ 안전팀이 수정하는 부분 (내용만 바꾸면 화면에 반영됩니다)
@@ -283,12 +285,12 @@ function render(){
   $("#today").textContent = now.toLocaleDateString(loc, { month:"long", day:"numeric", weekday:"short" });
   $("#days").innerHTML = DATA.noAccidentDays + "<small>" + esc(t("uDay")) + "</small>";
   $("#slogan").textContent = tr(DATA.slogan);
-  $("#notice").innerHTML = "📢 <div>" + tr(DATA.notice) + "</div>";
+  $("#notice").innerHTML = "📢 <div>" + (DATA.noticePlain ? `<b>${esc(t("focus"))}</b> ${esc(tr(DATA.noticePlain))}` : tr(DATA.notice)) + "</div>";
   document.querySelectorAll(".navc").forEach(a => a.href = "corrective.html?lang=" + I18N.lang);
   document.querySelectorAll(".navr").forEach(a => a.href = "roster.html?lang=" + I18N.lang);
   $("#home").href = "index.html?lang=" + I18N.lang;
 
-  const rate = Math.round(DATA.stats.done / DATA.stats.findings * 100);
+  const rate = DATA.stats.findings ? Math.round(DATA.stats.done / DATA.stats.findings * 100) : 0;
   $("#rate").textContent = rate + "%";
   const u = k => (["ko","zh"].includes(I18N.lang) ? "" : " ") + t(k);
   $("#band").textContent = `${t("findings")} ${DATA.stats.findings}${u("uCases")} · ${t("completed")} ${DATA.stats.done}${u("uCases")}`;
@@ -311,7 +313,7 @@ function render(){
     <div>${esc(tr(x.name))}<div class="bar"><i style="width:${x.n/max*100}%"></i></div></div><span class="n">${x.n}</span></div>`).join("");
 
   $("#zoneList").innerHTML = DATA.zones.map(z => `<div class="zone"><div class="ic">${z.icon}</div><div><b>${esc(tr(z.name))}</b><span>${esc(tr(z.desc))}</span></div></div>`).join("");
-  $("#good").innerHTML = tr(DATA.good);
+  $("#good").innerHTML = DATA.goodPlain ? esc(tr(DATA.goodPlain)) : tr(DATA.good);
 
   const zoneOpts = [...new Set(DATA.schedule.map(s=>s.area).concat(DATA.zones.map(z=>tr(z.name))))];
   $("#fZone").innerHTML = `<option value="" disabled selected>${esc(t("select"))}</option>` +
@@ -340,8 +342,47 @@ $("#dlg").addEventListener("close", () => {
   if ($("#dlg").returnValue === "ok") alert(t("thanks"));
   $("#reportForm").reset();
 });
+/* 사이트내용.xlsx 내용으로 바꾸기 */
+function applyContent(c){
+  if (!c) return;
+  const N = SiteContent.norm, iso = SiteContent.toISO;
+  const todayISO = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+  const ym = todayISO.slice(0, 7);
+  const info = c.info || {}, num = k => { const v = info[N(k)]; return v === undefined || String(v).trim() === "" ? null : +v; };
+  const P = c.phrases || {};
+  if (num("무재해 일수") != null) DATA.noAccidentDays = num("무재해 일수");
+  if (P[N("슬로건")]) DATA.slogan = P[N("슬로건")];
+  if (P[N("이번 주 중점 점검")]) DATA.noticePlain = P[N("이번 주 중점 점검")];
+  if (P[N("이달의 우수 사례")]) DATA.goodPlain = P[N("이달의 우수 사례")];
+  if (info[N("제보 양식 주소")]) DATA.reportFormUrl = String(info[N("제보 양식 주소")]).trim();
+
+  if (c.schedule) {
+    const mon = new Date(now); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
+    const sun = new Date(mon); sun.setDate(sun.getDate() + 6);
+    const f = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    const week = c.schedule.filter(s => s.date >= f(mon) && s.date <= f(sun));
+    DATA.schedule = week.length ? week : c.schedule.filter(s => s.date >= todayISO).slice(0, 5);
+  }
+  if (c.items) {
+    const map = { done: "done", prog: "prog", open: "prog", over: "open" };
+    DATA.results = c.items.slice(0, 7).map(it => ({
+      date: it.patrolDate.slice(5).replace("-", "."), area: it.area, title: it.finding, type: it.type, level: it.level,
+      status: map[SiteContent.itemStatus(it, todayISO)]
+    }));
+    const month = c.items.filter(it => it.patrolDate.startsWith(ym));
+    const patrolDays = new Set([...month.map(it => it.patrolDate), ...(c.schedule || []).filter(s => s.date.startsWith(ym) && s.date <= todayISO).map(s => s.date)]);
+    DATA.stats = {
+      patrols: num("이번 달 순찰 횟수") ?? patrolDays.size,
+      findings: num("이번 달 지적사항 수") ?? month.length,
+      done: num("이번 달 조치완료 수") ?? month.filter(it => SiteContent.itemStatus(it, todayISO) === "done").length
+    };
+  }
+  if (c.top5 && c.top5.length) DATA.top5 = c.top5;
+  if (c.zones && c.zones.length) DATA.zones = c.zones;
+}
+
 I18N.mountPicker($("#lang"), render);
-render();
+SiteContent.load().then(applyContent).finally(render);
 </script>
 </body>
 </html>
