@@ -33,8 +33,9 @@ body{margin:0;background:var(--bg);color:var(--text);
 .mark{display:inline-flex;align-items:flex-end;gap:3px;height:22px}
 .mark i{display:block;width:5px;height:22px;background:#1d4f91;border-radius:1px}
 .mark i+i{height:13px;background:#3aa548}
-.brand b{font-size:20px;font-weight:800;letter-spacing:-.6px}
-.brand span{font-size:13px;color:var(--sub);border-left:1px solid var(--line);padding-left:9px;white-space:nowrap}
+.logo{display:block;height:32px;width:auto}
+@media (prefers-color-scheme: dark){.logo{filter:brightness(1.6)}}
+.brand span{font-size:13px;color:var(--sub);border-left:1px solid var(--line);padding-left:10px;margin-left:4px;white-space:nowrap}
 .gnb{order:3;width:100%;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:0 -6px}
 .gnb::-webkit-scrollbar{display:none}
 .gnb a,.gnb button{padding:6px 10px;font:inherit;font-size:15px;font-weight:700;color:var(--text);text-decoration:none;white-space:nowrap;border-radius:8px;background:none;border:0;cursor:pointer}
