@@ -75,6 +75,7 @@ const UI = {
   rPreviewOn:["미리보기 중입니다 — 이 화면에만 보이고 다른 사람에게는 보이지 않습니다.", "Preview mode — only shown on this screen, not to others.", "Đang xem trước — chỉ hiển thị trên màn hình này.", "पूर्वावलोकन — यो स्क्रिनमा मात्र देखिन्छ।", "Mode pratinjau — hanya tampil di layar ini.", "โหมดดูตัวอย่าง — แสดงเฉพาะหน้าจอนี้", "预览模式——仅在此屏幕显示，他人看不到。"],
   rBack:     ["원래 근무표로", "Back to published", "Quay lại bản chính", "मूल तालिकामा फर्कनुहोस्", "Kembali ke jadwal resmi", "กลับไปตารางจริง", "返回正式排班表"],
   rFail:     ["근무표 파일을 불러오지 못했습니다.", "Could not load the schedule file.", "Không tải được tệp lịch làm việc.", "तालिका फाइल लोड गर्न सकिएन।", "Gagal memuat file jadwal.", "ไม่สามารถโหลดไฟล์ตารางงานได้", "无法加载排班文件。"],
+  rSlide:    ["슬라이드", "Slide", "Trang", "स्लाइड", "Slide", "สไลด์", "幻灯片"],
   sh_day:    ["주간", "Day shift", "Ca ngày", "दिन सिफ्ट", "Shift pagi", "กะกลางวัน", "白班"],
   sh_eve:    ["오후·중간", "Evening shift", "Ca chiều", "साँझ सिफ्ट", "Shift sore", "กะบ่าย", "中班"],
   sh_night:  ["야간", "Night shift", "Ca đêm", "रात सिफ्ट", "Shift malam", "กะกลางคืน", "夜班"],
