@@ -92,6 +92,7 @@ dt{color:var(--sub)} dd{margin:0}
     <nav class="gnb">
       <a href="index.html#results" class="navh" data-i18n="results"></a>
       <a href="corrective.html" class="on" data-i18n="navCorrective"></a>
+      <a href="roster.html" class="navr" data-i18n="navRoster"></a>
       <a href="index.html#zones" class="navh" data-i18n="zones"></a>
       <a href="index.html#sched" class="navh" data-i18n="schedule"></a>
     </nav>
@@ -195,6 +196,7 @@ function render(){
   const counts = {all:ITEMS.length, open:0, prog:0, over:0, done:0};
   ITEMS.forEach(i => counts[status(i)[0]]++);
   $("#back").href = "index.html?lang=" + I18N.lang;
+  document.querySelectorAll(".navr").forEach(a => a.href = "roster.html?lang=" + I18N.lang);
   document.querySelectorAll(".navh").forEach(a => a.href = "index.html?lang=" + I18N.lang + a.getAttribute("href").replace(/^[^#]*/, ""));
   $("#tiles").innerHTML = [
     [t("all"), counts.all, ""], [t("prog"), counts.open + counts.prog, ""],

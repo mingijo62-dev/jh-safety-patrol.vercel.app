@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>근무표</title>
+<link rel="stylesheet" href="portal.css">
+<style>
+:root{
+  --sh-day:#dbeafe; --sh-day-t:#1e4fa3;
+  --sh-eve:#fff1d6; --sh-eve-t:#8a5300;
+  --sh-night:#2f3a68; --sh-night-t:#ffffff;
+  --sh-off:#eef0f3; --sh-off-t:#6b7480;
+  --sh-rest:#f5f6f8; --sh-rest-t:#8b939d;
+  --sh-leave:#dcf3e1; --sh-leave-t:#23692f;
+  --sh-edu:#efe4fb; --sh-edu-t:#6b3fa0;
+  --today:#ffe3e5;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --sh-day:#1b3256; --sh-day-t:#bcd6ff;
+    --sh-eve:#3d2f12; --sh-eve-t:#ffd58a;
+    --sh-night:#4a568f; --sh-night-t:#ffffff;
+    --sh-off:#252d36; --sh-off-t:#9aa6b4;
+    --sh-rest:#1f262e; --sh-rest-t:#8b96a3;
+    --sh-leave:#1c3a24; --sh-leave-t:#a5e3b0;
+    --sh-edu:#33264a; --sh-edu-t:#d6c1f5;
+    --today:#4a2327;
+  }
+}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px 40px}
+.ptitle{padding:18px 0 6px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.ptitle h1{margin:0;font-size:22px;color:var(--brand-strong)}
+.ptitle p{margin:2px 0 0;font-size:13.5px;color:var(--sub)}
+.ptitle .tt{flex:1;min-width:220px}
+.pv{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:6px;padding:7px 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.banner{display:none;margin-top:10px;background:var(--mid-soft);color:var(--mid);padding:10px 14px;font-size:13.5px;font-weight:700;align-items:center;gap:10px;flex-wrap:wrap}
+.banner.on{display:flex}
+.banner span{flex:1}
+.banner button{border:1px solid currentColor;background:transparent;color:inherit;border-radius:6px;padding:4px 10px;font:inherit;font-size:12.5px;cursor:pointer}
+
+.todaybox{margin-top:14px}
+.todaybox .panel-b{display:flex;flex-wrap:wrap;gap:8px;padding-top:12px}
+.tchip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:14px}
+.tchip b{font-size:14px}
+
+.tabs{display:flex;gap:4px;margin-top:16px;overflow-x:auto;scrollbar-width:none}
+.tab{border:1px solid var(--line);border-bottom:0;background:var(--bar);color:var(--text);padding:7px 16px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;border-radius:6px 6px 0 0;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--card);color:var(--brand-strong);box-shadow:inset 0 3px 0 var(--brand-strong)}
+.sheet{background:var(--card);border:1px solid var(--line);border-top:2px solid #b9c4d0}
+.sheet-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+.sheet-h h2{margin:0;font-size:16.5px;flex:1;min-width:200px}
+.search{font:inherit;font-size:14px;padding:7px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);width:220px;max-width:100%}
+
+.tw{overflow:auto;max-height:70vh}
+table.r{border-collapse:separate;border-spacing:0;font-size:13.5px;min-width:100%}
+table.r th,table.r td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 6px;text-align:center;white-space:nowrap;min-width:34px}
+table.r thead th{position:sticky;top:0;background:var(--bar);z-index:2;font-weight:700}
+table.r thead tr.sub th{top:31px;font-weight:500;font-size:12px;color:var(--sub)}
+table.r .k{position:sticky;left:0;background:var(--card);z-index:1;text-align:left;font-weight:700;padding-left:12px;min-width:110px;box-shadow:1px 0 0 var(--line)}
+table.r thead .k{z-index:3;background:var(--bar)}
+table.r th.sat{color:#2e6db4} table.r th.sun{color:#c62828}
+table.r th.today{background:var(--high);color:#fff}
+table.r td.today{box-shadow:inset 2px 0 0 var(--high),inset -2px 0 0 var(--high)}
+table.r tr:hover td{filter:brightness(.97)}
+.c{display:inline-block;min-width:26px;padding:1px 4px;border-radius:4px;font-weight:700}
+.s-day{background:var(--sh-day);color:var(--sh-day-t)}
+.s-eve{background:var(--sh-eve);color:var(--sh-eve-t)}
+.s-night{background:var(--sh-night);color:var(--sh-night-t)}
+.s-off{background:var(--sh-off);color:var(--sh-off-t)}
+.s-rest{background:var(--sh-rest);color:var(--sh-rest-t)}
+.s-leave{background:var(--sh-leave);color:var(--sh-leave-t)}
+.s-edu{background:var(--sh-edu);color:var(--sh-edu-t)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;padding:12px 14px;border-top:1px solid var(--line);font-size:13px;color:var(--sub)}
+.legend b{color:var(--text);margin-right:2px}
+.legend span{display:flex;align-items:center;gap:6px}
+.msg{padding:40px 16px;text-align:center;color:var(--sub)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="in">
+    <a class="brand" href="index.html" id="home"><img class="logo" src="hansol-logo.png" alt="Hansol 한솔제지" width="153" height="35"><span data-i18n="title"></span></a>
+    <nav class="gnb">
+      <a href="index.html#results" class="navh" data-i18n="results"></a>
+      <a href="corrective.html" class="navl" data-i18n="navCorrective"></a>
+      <a href="roster.html" class="on" data-i18n="navRoster"></a>
+      <a href="index.html#zones" class="navh" data-i18n="zones"></a>
+      <a href="index.html#sched" class="navh" data-i18n="schedule"></a>
+    </nav>
+    <div class="langbox"><span aria-hidden="true">🌐</span><select class="lang" id="lang" aria-label="Language"></select></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="ptitle">
+    <div class="tt"><h1 data-i18n="rTitle"></h1><p data-i18n="rSub"></p></div>
+    <label class="pv"><span data-i18n="rPreview"></span><input type="file" id="file" accept=".xlsx,.xls,.csv" hidden></label>
+  </div>
+  <div class="banner" id="banner"><span data-i18n="rPreviewOn"></span><button type="button" id="unpreview" data-i18n="rBack"></button></div>
+
+  <section class="panel todaybox" id="todaybox" hidden>
+    <div class="panel-h"><h2>📌 <span data-i18n="rTodayShift"></span></h2><span class="more" id="todayLabel"></span></div>
+    <div class="panel-b" id="todayList"></div>
+  </section>
+
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div class="sheet">
+    <div class="sheet-h"><h2 id="sheetTitle"></h2><input class="search" id="q" type="search" data-i18n-ph="rSearch"></div>
+    <div class="tw" id="tw"><div class="msg">…</div></div>
+    <div class="legend" id="legend"></div>
+  </div>
+</div>
+
+<footer class="foot"><span data-i18n="contact"></span></footer>
+
+<script src="i18n.js"></script>
+<script src="lib/xlsx.core.min.js"></script>
+<script>
+/* ===================================================
+   ▼ 설정
+   - 근무표 파일 이름: 사이트에 올리는 엑셀 파일 이름입니다. (같은 이름으로 덮어 올리면 갱신됩니다)
+   - 근무 구분 글자: 엑셀 칸에 적힌 글자를 아래 분류로 색칠합니다. 새 글자를 쓰면 여기에 추가하세요.
+   =================================================== */
+const ROSTER_FILE = "근무표.xlsx";
+const SHIFT_CODES = {
+  day:   ["주", "주간", "D", "DAY", "일근"],
+  eve:   ["오후", "중", "중간", "E", "S"],
+  night: ["야", "야간", "N", "NIGHT"],
+  rest:  ["비", "비번"],
+  off:   ["휴", "휴무", "OFF", "O", "X", "-"],
+  leave: ["연", "연차", "반", "반차", "휴가"],
+  edu:   ["교", "교육"]
+};
+/* =================== ▲ 설정 끝 =================== */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const t = (k, v) => I18N.t(k, v);
+const CODE2 = {};
+for (const k in SHIFT_CODES) SHIFT_CODES[k].forEach(c => CODE2[c.toUpperCase()] = k);
+const shiftOf = v => CODE2[String(v).trim().toUpperCase()] || null;
+const WEEK = "일월화수목금토";
+const now = new Date(), Y = now.getFullYear(), M = now.getMonth() + 1, D = now.getDate();
+
+let sheets = [], published = null, cur = 0, preview = false;
+
+/* 시트 한 장을 표 구조로 해석 */
+function parseSheet(name, rows){
+  rows = rows.map(r => r.map(c => String(c ?? "").trim()));
+  while (rows.length && rows[rows.length-1].every(c => !c)) rows.pop();
+  const width = Math.max(0, ...rows.map(r => r.length));
+  // 머리글 줄: 절반 이상 채워진 첫 줄
+  let h = rows.findIndex(r => r.filter(Boolean).length >= Math.max(2, width * 0.5));
+  if (h < 0) h = 0;
+  const title = rows.slice(0, h).map(r => r.filter(Boolean).join(" ")).filter(Boolean).join(" · ");
+  const head = rows[h] || [];
+  // 바로 다음 줄이 요일(월화수…)이면 보조 머리글로 사용
+  let sub = null, start = h + 1;
+  const nx = rows[h+1] || [];
+  if (nx.slice(1).filter(c => c && "월화수목금토일".includes(c[0]) && c.length <= 3).length >= Math.max(3, (nx.length-1) * 0.6)) { sub = nx; start = h + 2; }
+  const body = rows.slice(start).filter(r => r.some(Boolean));
+  // 오늘 열 찾기
+  const ctx = name + " " + title;
+  const monthKnown = new RegExp(`(^|[^0-9])${M}\\s*월|${Y}[.\\-/]\\s*0?${M}([^0-9]|$)`).test(ctx);
+  const anyMonth = /\d{1,2}\s*월/.test(ctx);
+  let todayCol = -1;
+  head.forEach((c, i) => {
+    if (i === 0 || todayCol >= 0) return;
+    let m;
+    if ((m = c.match(/^(\d{1,2})\s*[./\-월]\s*(\d{1,2})/))) { if (+m[1] === M && +m[2] === D) todayCol = i; }
+    else if ((m = c.match(/^(\d{1,2})\s*일?$/))) { if (+m[1] === D && (monthKnown || !anyMonth)) todayCol = i; }
+  });
+  // 요일 계산 (보조 머리글이 없을 때 주말 색 표시용)
+  const weekdayOf = i => {
+    if (sub) return sub[i] ? sub[i][0] : "";
+    const m = head[i].match(/^(\d{1,2})\s*[./\-월]\s*(\d{1,2})/);
+    if (m) return WEEK[new Date(Y, +m[1]-1, +m[2]).getDay()];
+    return "";
+  };
+  return { name, title, head, sub, body, width, todayCol, weekdayOf, monthKnown };
+}
+
+function load(wb){
+  return wb.SheetNames.map(n => parseSheet(n, XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: false, defval: "" })))
+    .filter(s => s.body.length);
+}
+
+function pickDefault(){
+  const i = sheets.findIndex(s => s.todayCol >= 0);
+  if (i >= 0) return i;
+  const j = sheets.findIndex(s => s.monthKnown);
+  return j >= 0 ? j : 0;
+}
+
+function render(){
+  $("#home").href = "index.html?lang=" + I18N.lang;
+  document.querySelectorAll(".navh").forEach(a => a.href = "index.html?lang=" + I18N.lang + a.getAttribute("href").replace(/^[^#]*/, ""));
+  document.querySelectorAll(".navl").forEach(a => a.href = a.getAttribute("href").split("?")[0] + "?lang=" + I18N.lang);
+  $("#banner").classList.toggle("on", preview);
+  if (!sheets.length) return;
+
+  $("#tabs").innerHTML = sheets.map((s, i) => `<button class="tab" role="tab" aria-selected="${i===cur}" data-i="${i}">${esc(s.name)}</button>`).join("");
+  const s = sheets[cur];
+  $("#sheetTitle").textContent = s.title || s.name;
+
+  const q = $("#q").value.trim().toLowerCase();
+  const rows = s.body.filter(r => !q || r.slice(0, 2).join(" ").toLowerCase().includes(q));
+  const thCls = i => {
+    const w = s.weekdayOf(i);
+    return [i === s.todayCol ? "today" : "", w === "토" ? "sat" : "", w === "일" ? "sun" : ""].join(" ").trim();
+  };
+  const cols = [...Array(s.width).keys()];
+  const cell = v => { const k = shiftOf(v); return k ? `<span class="c s-${k}">${esc(v)}</span>` : esc(v); };
+  $("#tw").innerHTML = `<table class="r"><thead>
+      <tr>${cols.map(i => `<th class="${i===0?'k':''} ${thCls(i)}"${i===s.todayCol?' id="tcol"':''}>${esc(s.head[i] || "")}</th>`).join("")}</tr>
+      ${s.sub ? `<tr class="sub">${cols.map(i => `<th class="${i===0?'k':''} ${thCls(i)}">${esc(i===0 ? (s.sub[0]||"") : (s.sub[i]||""))}</th>`).join("")}</tr>` : ""}
+    </thead><tbody>
+      ${rows.map(r => `<tr>${cols.map(i => `<td class="${i===0?'k':''} ${i===s.todayCol?'today':''}">${i===0 ? esc(r[i]||"") : cell(r[i]||"")}</td>`).join("")}</tr>`).join("")
+        || `<tr><td class="k" colspan="${s.width}">${esc(t("none"))}</td></tr>`}
+    </tbody></table>`;
+
+  // 오늘 열이 보이도록 가로 스크롤
+  const tc = $("#tcol");
+  if (tc) { const tw = $("#tw"); tw.scrollLeft = Math.max(0, tc.offsetLeft - tw.clientWidth / 2); }
+
+  // 범례: 이 시트에 실제로 나온 구분만
+  const used = {};
+  s.body.forEach(r => r.slice(1).forEach(v => { const k = shiftOf(v); if (k) (used[k] = used[k] || new Set()).add(v); }));
+  $("#legend").innerHTML = Object.keys(SHIFT_CODES).filter(k => used[k]).map(k =>
+    `<span>${[...used[k]].map(v => `<span class="c s-${k}">${esc(v)}</span>`).join("")} ${esc(t("sh_" + k))}</span>`).join("");
+
+  // 오늘 근무 요약
+  const tb = $("#todaybox");
+  if (s.todayCol >= 0) {
+    tb.hidden = false;
+    $("#todayLabel").textContent = now.toLocaleDateString(I18N.locale, { month: "long", day: "numeric", weekday: "short" });
+    const groups = {};
+    s.body.forEach(r => { const v = r[s.todayCol]; if (!v) return; (groups[v] = groups[v] || []).push(r[0]); });
+    const order = Object.keys(SHIFT_CODES);
+    const keys = Object.keys(groups).sort((a, b) => (order.indexOf(shiftOf(a)) + 99) % 99 - (order.indexOf(shiftOf(b)) + 99) % 99);
+    $("#todayList").innerHTML = keys.map(v => {
+      const k = shiftOf(v);
+      return `<div class="tchip"><span class="c ${k ? "s-" + k : ""}">${esc(v)}</span>${k ? `<span style="color:var(--sub)">${esc(t("sh_" + k))}</span>` : ""}<b>${esc(groups[v].join(", "))}</b></div>`;
+    }).join("");
+  } else tb.hidden = true;
+}
+
+function show(list, isPreview){
+  sheets = list; preview = isPreview; cur = pickDefault(); render();
+}
+function fail(){
+  $("#tw").innerHTML = `<div class="msg">${esc(t("rFail"))}</div>`;
+}
+
+$("#tabs").addEventListener("click", e => { const i = e.target.dataset.i; if (i != null) { cur = +i; render(); } });
+$("#q").addEventListener("input", render);
+$("#file").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { show(load(XLSX.read(await f.arrayBuffer(), { type: "array" })), true); }
+  catch (err) { alert(t("rFail")); }
+  e.target.value = "";
+});
+$("#unpreview").onclick = () => published ? show(published, false) : location.reload();
+
+I18N.mountPicker($("#lang"), render);
+fetch(encodeURI(ROSTER_FILE), { cache: "no-cache" })
+  .then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); })
+  .then(buf => { published = load(XLSX.read(buf, { type: "array" })); show(published, false); })
+  .catch(() => { render(); fail(); });
+</script>
+</body>
+</html>

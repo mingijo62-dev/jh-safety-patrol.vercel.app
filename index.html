@@ -107,6 +107,7 @@ textarea{min-height:90px}
     <nav class="gnb">
       <a href="#results" class="on" data-i18n="results"></a>
       <a href="corrective.html" class="navc" data-i18n="navCorrective"></a>
+      <a href="roster.html" class="navr" data-i18n="navRoster"></a>
       <a href="#zones" data-i18n="zones"></a>
       <a href="#sched" data-i18n="schedule"></a>
       <button type="button" id="navReport" data-i18n="navReport"></button>
@@ -284,6 +285,7 @@ function render(){
   $("#slogan").textContent = tr(DATA.slogan);
   $("#notice").innerHTML = "📢 <div>" + tr(DATA.notice) + "</div>";
   document.querySelectorAll(".navc").forEach(a => a.href = "corrective.html?lang=" + I18N.lang);
+  document.querySelectorAll(".navr").forEach(a => a.href = "roster.html?lang=" + I18N.lang);
   $("#home").href = "index.html?lang=" + I18N.lang;
 
   const rate = Math.round(DATA.stats.done / DATA.stats.findings * 100);

@@ -65,6 +65,24 @@ const UI = {
   navCorrective:["시정조치", "Corrective actions", "Khắc phục", "सुधार कार्य", "Perbaikan", "การแก้ไข", "整改"],
   navReport: ["제보", "Report", "Báo cáo", "रिपोर्ट", "Lapor", "แจ้ง", "举报"],
 
+  /* 근무표 페이지 */
+  navRoster: ["근무표", "Work schedule", "Lịch làm việc", "काम तालिका", "Jadwal kerja", "ตารางงาน", "排班表"],
+  rTitle:    ["🗓️ 근무표", "🗓️ Work schedule", "🗓️ Lịch làm việc", "🗓️ काम तालिका", "🗓️ Jadwal kerja", "🗓️ ตารางงาน", "🗓️ 排班表"],
+  rSub:      ["교대 근무 일정을 확인하세요", "Check your shift schedule", "Xem lịch ca làm việc của bạn", "आफ्नो सिफ्ट तालिका हेर्नुहोस्", "Lihat jadwal shift Anda", "ตรวจสอบตารางกะของคุณ", "查看您的倒班安排"],
+  rSearch:   ["이름 또는 조 검색", "Search name or team", "Tìm tên hoặc tổ", "नाम वा टोली खोज्नुहोस्", "Cari nama atau regu", "ค้นหาชื่อหรือทีม", "搜索姓名或班组"],
+  rTodayShift:["오늘 근무", "Today's shifts", "Ca làm hôm nay", "आजको सिफ्ट", "Shift hari ini", "กะวันนี้", "今日班次"],
+  rPreview:  ["📂 내 파일로 미리보기", "📂 Preview my file", "📂 Xem trước tệp của tôi", "📂 मेरो फाइल हेर्नुहोस्", "📂 Pratinjau file saya", "📂 ดูตัวอย่างไฟล์ของฉัน", "📂 预览我的文件"],
+  rPreviewOn:["미리보기 중입니다 — 이 화면에만 보이고 다른 사람에게는 보이지 않습니다.", "Preview mode — only shown on this screen, not to others.", "Đang xem trước — chỉ hiển thị trên màn hình này.", "पूर्वावलोकन — यो स्क्रिनमा मात्र देखिन्छ।", "Mode pratinjau — hanya tampil di layar ini.", "โหมดดูตัวอย่าง — แสดงเฉพาะหน้าจอนี้", "预览模式——仅在此屏幕显示，他人看不到。"],
+  rBack:     ["원래 근무표로", "Back to published", "Quay lại bản chính", "मूल तालिकामा फर्कनुहोस्", "Kembali ke jadwal resmi", "กลับไปตารางจริง", "返回正式排班表"],
+  rFail:     ["근무표 파일을 불러오지 못했습니다.", "Could not load the schedule file.", "Không tải được tệp lịch làm việc.", "तालिका फाइल लोड गर्न सकिएन।", "Gagal memuat file jadwal.", "ไม่สามารถโหลดไฟล์ตารางงานได้", "无法加载排班文件。"],
+  sh_day:    ["주간", "Day shift", "Ca ngày", "दिन सिफ्ट", "Shift pagi", "กะกลางวัน", "白班"],
+  sh_eve:    ["오후·중간", "Evening shift", "Ca chiều", "साँझ सिफ्ट", "Shift sore", "กะบ่าย", "中班"],
+  sh_night:  ["야간", "Night shift", "Ca đêm", "रात सिफ्ट", "Shift malam", "กะกลางคืน", "夜班"],
+  sh_rest:   ["비번", "Off after night", "Nghỉ sau ca đêm", "रात सिफ्टपछि बिदा", "Libur setelah malam", "หยุดหลังกะดึก", "下夜休"],
+  sh_off:    ["휴무", "Day off", "Ngày nghỉ", "बिदा", "Libur", "วันหยุด", "休息"],
+  sh_leave:  ["연차·휴가", "Leave", "Nghỉ phép", "छुट्टी", "Cuti", "ลาพักร้อน", "休假"],
+  sh_edu:    ["교육", "Training", "Đào tạo", "तालिम", "Pelatihan", "อบรม", "培训"],
+
   /* 시정조치 페이지 */
   back:      ["← 안전순찰 메인", "← Safety patrol home", "← Trang chính", "← मुख्य पृष्ठ", "← Beranda", "← หน้าหลัก", "← 返回首页"],
   cTitle:    ["📋 시정조치 요구 · 완료 현황", "📋 Corrective actions", "📋 Biện pháp khắc phục", "📋 सुधार कार्य", "📋 Tindakan perbaikan", "📋 การแก้ไขข้อบกพร่อง", "📋 整改要求及完成情况"],
