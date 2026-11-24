@@ -76,6 +76,37 @@ table.r tr:hover td{filter:brightness(.97)}
 .legend b{color:var(--text);margin-right:2px}
 .legend span{display:flex;align-items:center;gap:6px}
 .msg{padding:40px 16px;text-align:center;color:var(--sub)}
+/* 근무 편성표(날짜별 근무자) */
+.duty-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+.duty-h h2{margin:0;font-size:16.5px;flex:1;min-width:220px}
+.hits{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.hits:empty{display:none}
+.hit{font-size:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
+.hit b{color:var(--brand-strong);min-width:92px}
+.hit span{color:var(--sub);font-size:13px}
+.wk{padding:12px 14px;border-bottom:1px solid var(--line)}
+.wk-h{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:8px}
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+@media(min-width:1000px){.days{grid-template-columns:repeat(7,1fr)}}
+.day{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--card)}
+.day .dh{background:var(--bar);padding:5px 8px;font-weight:700;font-size:13.5px}
+.day.sat .dh{color:#2e6db4} .day.sun .dh{color:#c62828}
+.day.today{border:2px solid var(--high)}
+.day.today .dh{background:var(--high);color:#fff}
+.day.dim{opacity:.35}
+.slot{padding:6px 8px;border-top:1px solid var(--line);font-size:13.5px}
+.slot:first-of-type{border-top:0}
+.slot .st{font-size:12px;font-weight:700;color:var(--brand-strong)}
+.slot .st small{display:block;font-weight:400;color:var(--sub);font-size:11.5px}
+.slot .pp{line-height:1.45}
+.day .none{padding:10px 8px;color:var(--sub);font-size:12.5px}
+mark{background:#ffe066;color:#000;border-radius:3px;padding:0 2px}
+.pastbtn{margin:12px 14px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:6px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.notes{padding:12px 14px;border-top:1px solid var(--line);font-size:13px;color:var(--sub)}
+.notes:empty{display:none}
+.notes p{margin:2px 0}
+.trow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%}
+.trow > b{min-width:44px;color:var(--sub);font-size:13px}
 </style>
 </head>
 <body>
@@ -106,11 +137,21 @@ table.r tr:hover td{filter:brightness(.97)}
     <div class="panel-b" id="todayList"></div>
   </section>
 
+  <section class="sheet" id="duty" hidden style="margin-top:16px">
+    <div class="duty-h"><h2 id="dutyTitle"></h2><input class="search" id="dq" type="search" data-i18n-ph="rSearchName"></div>
+    <div class="hits" id="hits"></div>
+    <button class="pastbtn" id="pastBtn" type="button"></button>
+    <div id="weeks"></div>
+    <div class="notes" id="notes"></div>
+  </section>
+
+  <div id="gridWrap">
   <div class="tabs" id="tabs" role="tablist"></div>
   <div class="sheet">
     <div class="sheet-h"><h2 id="sheetTitle"></h2><input class="search" id="q" type="search" data-i18n-ph="rSearch"></div>
     <div class="tw" id="tw"><div class="msg">…</div></div>
     <div class="legend" id="legend"></div>
+  </div>
   </div>
 </div>
 
@@ -147,7 +188,7 @@ const shiftOf = v => CODE2[String(v).trim().toUpperCase()] || null;
 const WEEK = "일월화수목금토";
 const now = new Date(), Y = now.getFullYear(), M = now.getMonth() + 1, D = now.getDate();
 
-let sheets = [], published = null, cur = 0, preview = false;
+let sheets = [], duty = null, published = null, cur = 0, preview = false, showPast = false;
 
 /* 시트 한 장을 표 구조로 해석 */
 function parseSheet(name, rows){
@@ -188,7 +229,48 @@ function parseSheet(name, rows){
 /* 압축 파일 안의 항목 꺼내기 */
 const zget = (zip, path) => { const i = zip.FullPaths.findIndex(f => f.endsWith("/" + path)); return i < 0 ? null : zip.FileIndex[i]; };
 
-/* 파일 읽기: PPT(.pptx)면 슬라이드의 표, 아니면 엑셀 시트 */
+/* 날짜별 근무자 형식(근무 편성표) 해석
+   - "구분 | 11/16(월) | 11/17(화) …" 같은 날짜 줄 아래에
+     "오전 05~07시(줄바꿈)역할 | 이름(줄바꿈)이름 …" 줄이 이어지는 표 */
+function parseDuty(rows){
+  const out = []; let dates = null;
+  const DR = /^(\d{1,2})\s*[\/.]\s*(\d{1,2})/;
+  for (const r of rows) {
+    const c0 = String(r[0] || "").replace(/\s+/g, "");
+    const dn = r.slice(1).filter(c => DR.test(String(c).trim())).length;
+    if ((c0 === "구분" && dn >= 2) || dn >= 3) {
+      dates = r.map((c, i) => { const m = i ? String(c).trim().match(DR) : null; return m ? { m: +m[1], d: +m[2] } : null; });
+      continue;
+    }
+    if (!dates) continue;
+    const lines = String(r[0] || "").split("\n").map(x => x.trim()).filter(Boolean);
+    if (!lines.length) continue;
+    r.forEach((c, i) => {
+      if (!i || !dates[i]) return;
+      const people = String(c).split(/\n|,/).map(x => x.trim()).filter(Boolean);
+      if (people.length) out.push({ ...dates[i], time: lines[0], role: lines.slice(1).join(" "), people });
+    });
+  }
+  return out;
+}
+function buildDuty(entries, yearHint, title, notes){
+  if (entries.length < 5) return null;
+  let y = yearHint || Y, last = entries[0].m;
+  const map = new Map();
+  entries.forEach(e => {
+    if (e.m < last - 6) y++;               // 12월 → 1월 넘어가면 다음 해
+    last = e.m;
+    const key = `${y}-${String(e.m).padStart(2, "0")}-${String(e.d).padStart(2, "0")}`;
+    if (!map.has(key)) map.set(key, { key, date: new Date(y, e.m - 1, e.d), slots: [] });
+    map.get(key).slots.push({ time: e.time, role: e.role, people: e.people });
+  });
+  const days = [...map.values()].sort((p, q) => p.date - q.date);
+  return { title, notes: [...new Set(notes)], days };
+}
+const yearOf = txt => { const m = txt.match(/(?:'|’|‘)(\d{2})[.\s]|20(\d{2})\s*년/); return m ? 2000 + +(m[1] || m[2]) : null; };
+const cleanTitle = s => s.replace(/^[■□▶●\s]*/, "").replace(/^유첨\s*\d*\)?\s*/, "").replace(/\(\s*\d+\s*\/\s*\d+\s*\)\s*$/, "").trim();
+
+/* 파일 읽기: PPT(.pptx)면 슬라이드의 표, 아니면 엑셀 시트 → { sheets, duty } */
 function load(buf){
   const u8 = new Uint8Array(buf);
   if (u8[0] === 0x50 && u8[1] === 0x4B) {            // zip 형식
@@ -196,39 +278,60 @@ function load(buf){
     if (zget(zip, "ppt/presentation.xml")) return loadPptx(zip);
   }
   const wb = XLSX.read(u8, { type: "array" });
-  return wb.SheetNames.map(n => parseSheet(n, XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: false, defval: "" })))
-    .filter(s => s.body.length);
+  const raw = wb.SheetNames.map(n => [n, XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: false, defval: "" })]);
+  const entries = raw.flatMap(([n, rows]) => parseDuty(rows.map(r => r.map(c => String(c ?? "")))));
+  const allText = raw.map(([n, rows]) => n + " " + rows.slice(0, 3).flat().join(" ")).join(" ");
+  const duty = buildDuty(entries, yearOf(allText), cleanTitle(raw[0] ? raw[0][1].slice(0, 2).flat().filter(Boolean)[0] || raw[0][0] : ""), []);
+  if (duty) return { sheets: [], duty };
+  return { sheets: raw.map(([n, rows]) => parseSheet(n, rows)).filter(s => s.body.length), duty: null };
 }
 
 function loadPptx(zip){
   const A = "http://schemas.openxmlformats.org/drawingml/2006/main";
   const P = "http://schemas.openxmlformats.org/presentationml/2006/main";
   const dec = new TextDecoder("utf-8");
-  const text = el => [...el.getElementsByTagNameNS(A, "p")].map(p => [...p.getElementsByTagNameNS(A, "t")].map(x => x.textContent).join("")).join(" ").trim();
+  // 문단과 줄바꿈(Shift+Enter)을 모두 줄바꿈으로 읽습니다
+  const para = p => [...p.childNodes].map(n => n.localName === "br" ? "\n" : (n.localName === "r" || n.localName === "fld") ? [...n.getElementsByTagNameNS(A, "t")].map(x => x.textContent).join("") : "").join("");
+  const text = el => [...el.getElementsByTagNameNS(A, "p")].map(para).join("\n").replace(/\u000b/g, "\n").trim();
   const slides = zip.FullPaths.map(f => (f.match(/ppt\/slides\/slide(\d+)\.xml$/) || [])[1]).filter(Boolean).map(Number).sort((a, b) => a - b);
-  const found = [];
+  const found = [], dutyEntries = [], dutyNotes = [];
+  let dutyTitle = "", allText = "";
   slides.forEach(n => {
     const e = zget(zip, `ppt/slides/slide${n}.xml`);
     if (!e) return;
     const doc = new DOMParser().parseFromString(dec.decode(e.content), "application/xml");
-    // 슬라이드 제목
+    // 슬라이드 제목과 글상자 문구
     let title = "";
+    const boxes = [];
     for (const sp of doc.getElementsByTagNameNS(P, "sp")) {
+      const tx = text(sp); if (!tx) continue;
+      boxes.push(tx);
       const ph = sp.getElementsByTagNameNS(P, "ph")[0];
-      if (ph && /title/i.test(ph.getAttribute("type") || "")) { title = text(sp); break; }
+      if (!title && ph && /title/i.test(ph.getAttribute("type") || "")) title = tx.replace(/\n/g, " ");
     }
+    allText += " " + boxes.join(" ");
     const tables = [...doc.getElementsByTagNameNS(A, "tbl")];
+    let slideHasDuty = false;
     tables.forEach((tbl, ti) => {
       const rows = [...tbl.getElementsByTagNameNS(A, "tr")].map(tr =>
         [...tr.children].filter(c => c.localName === "tc").map(tc => tc.getAttribute("hMerge") || tc.getAttribute("vMerge") ? "" : text(tc)));
+      const d = parseDuty(rows);
+      if (d.length >= 5) { dutyEntries.push(...d); slideHasDuty = true; return; }
       const name = (title || `${t("rSlide")} ${n}`) + (tables.length > 1 ? ` (${ti + 1})` : "");
-      found.push(parseSheet(name.length > 24 ? name.slice(0, 24) + "…" : name, title ? [[title], ...rows] : rows));
+      found.push(parseSheet(name.length > 24 ? name.slice(0, 24) + "…" : name, title ? [[title], ...rows.map(r => r.map(c => c.replace(/\n/g, " ")))] : rows.map(r => r.map(c => c.replace(/\n/g, " ")))));
     });
+    if (slideHasDuty) {
+      const head = boxes.find(b => /편성|근무|당번|순찰/.test(b) && b.length < 120) || title;
+      if (!dutyTitle && head) dutyTitle = cleanTitle(head.split("\n")[0]);
+      boxes.forEach(b => b.split("\n").forEach(l => { if (/^\s*※/.test(l)) dutyNotes.push(l.trim()); }));
+    }
   });
+  const duty = buildDuty(dutyEntries, yearOf(allText), dutyTitle, dutyNotes);
+  if (duty) return { sheets: [], duty };
   // 근무 글자(주/야/휴…)가 들어 있는 표만 근무표로 봅니다
   const score = s => s.body.reduce((n, r) => n + r.slice(1).filter(v => shiftOf(v)).length, 0);
   const rosters = found.filter(s => s.body.length && score(s) >= 5);
-  return rosters.length ? rosters : found.filter(s => s.body.length);
+  return { sheets: rosters.length ? rosters : found.filter(s => s.body.length), duty: null };
 }
 
 function pickDefault(){
@@ -243,6 +346,9 @@ function render(){
   document.querySelectorAll(".navh").forEach(a => a.href = "index.html?lang=" + I18N.lang + a.getAttribute("href").replace(/^[^#]*/, ""));
   document.querySelectorAll(".navl").forEach(a => a.href = a.getAttribute("href").split("?")[0] + "?lang=" + I18N.lang);
   $("#banner").classList.toggle("on", preview);
+  $("#duty").hidden = !duty;
+  $("#gridWrap").hidden = !!duty;
+  if (duty) return renderDuty();
   if (!sheets.length) return;
 
   $("#tabs").innerHTML = sheets.map((s, i) => `<button class="tab" role="tab" aria-selected="${i===cur}" data-i="${i}">${esc(s.name)}</button>`).join("");
@@ -291,18 +397,78 @@ function render(){
   } else tb.hidden = true;
 }
 
-function show(list, isPreview){
-  sheets = list; preview = isPreview; cur = pickDefault(); render();
+const dayKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const TODAY = dayKey(now);
+const TOMORROW = dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
+const dLabel = d => d.toLocaleDateString(I18N.locale, { month: "numeric", day: "numeric", weekday: "short" });
+const hl = (txt, q) => !q ? esc(txt) : esc(txt).replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), m => `<mark>${m}</mark>`);
+
+function renderDuty(){
+  $("#dutyTitle").textContent = duty.title || t("rTitle");
+  const q = $("#dq").value.trim();
+  const ql = q.toLowerCase();
+  const match = day => day.slots.some(s => s.people.some(p => p.toLowerCase().includes(ql)));
+
+  // 오늘 · 내일
+  const tb = $("#todaybox");
+  const td = duty.days.find(d => d.key === TODAY), tm = duty.days.find(d => d.key === TOMORROW);
+  if (td || tm) {
+    tb.hidden = false;
+    $("#todayLabel").textContent = dLabel(now);
+    const line = (lab, d) => d ? `<div class="trow"><b>${esc(lab)}</b>${d.slots.map(s =>
+      `<div class="tchip"><span style="color:var(--brand-strong);font-weight:700">${esc(s.time)}</span><b>${esc(s.people.join(", "))}</b></div>`).join("")}</div>` : "";
+    $("#todayList").innerHTML = line(t("rToday"), td) + line(t("rTomorrow"), tm);
+  } else tb.hidden = true;
+
+  // 이름 검색 결과
+  $("#hits").innerHTML = q ? (duty.days.flatMap(d => d.slots.filter(s => s.people.some(p => p.toLowerCase().includes(ql)))
+      .map(s => `<div class="hit"><b>${esc(dLabel(d.date))}</b>${esc(s.time)} <span>${esc(s.role)}</span> — ${hl(s.people.join(", "), q)}</div>`)).join("")
+      || `<div class="hit">${esc(t("none"))}</div>`) : "";
+
+  // 주 단위 묶음
+  const weeks = [];
+  duty.days.forEach(d => {
+    const mon = new Date(d.date); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
+    const k = dayKey(mon);
+    let w = weeks.find(x => x.k === k);
+    if (!w) weeks.push(w = { k, mon, days: [] });
+    w.days.push(d);
+  });
+  const thisMon = new Date(now); thisMon.setDate(thisMon.getDate() - ((thisMon.getDay() + 6) % 7)); thisMon.setHours(0,0,0,0);
+  const pastCount = weeks.filter(w => w.mon < thisMon).length;
+  const visible = weeks.filter(w => showPast || q || w.mon >= thisMon);
+  $("#pastBtn").hidden = !pastCount || !!q;
+  $("#pastBtn").textContent = showPast ? t("rHidePast") : t("rShowPast", { n: pastCount });
+  $("#weeks").innerHTML = (visible.length ? visible : weeks).map(w => {
+    const sun = new Date(w.mon); sun.setDate(sun.getDate() + 6);
+    const all = [...Array(7).keys()].map(i => { const d = new Date(w.mon); d.setDate(d.getDate() + i); return w.days.find(x => x.key === dayKey(d)) || { key: dayKey(d), date: d, slots: [] }; })
+      .filter(d => d.slots.length || (d.date >= w.days[0].date && d.date <= w.days[w.days.length - 1].date));
+    return `<div class="wk"><div class="wk-h">${esc(dLabel(w.mon))} ~ ${esc(dLabel(sun))}</div><div class="days">${all.map(d => {
+      const wd = d.date.getDay();
+      const cls = [d.key === TODAY ? "today" : "", wd === 6 ? "sat" : "", wd === 0 ? "sun" : "", q && !match(d) ? "dim" : ""].join(" ");
+      return `<div class="day ${cls}"${d.key === TODAY ? ' id="todayCard"' : ""}><div class="dh">${esc(dLabel(d.date))}</div>${
+        d.slots.length ? d.slots.map(s => `<div class="slot"><div class="st">${esc(s.time)}${s.role ? `<small>${esc(s.role)}</small>` : ""}</div><div class="pp">${s.people.map(p => hl(p, q)).join("<br>")}</div></div>`).join("")
+        : `<div class="none">—</div>`}</div>`;
+    }).join("")}</div></div>`;
+  }).join("");
+  $("#notes").innerHTML = duty.notes.map(n => `<p>${esc(n)}</p>`).join("");
+}
+
+function show(data, isPreview){
+  sheets = data.sheets; duty = data.duty; preview = isPreview; cur = pickDefault(); render();
 }
 function fail(){
+  $("#gridWrap").hidden = false; $("#duty").hidden = true;
   $("#tw").innerHTML = `<div class="msg">${esc(t("rFail"))}</div>`;
 }
 
 $("#tabs").addEventListener("click", e => { const i = e.target.dataset.i; if (i != null) { cur = +i; render(); } });
 $("#q").addEventListener("input", render);
+$("#dq").addEventListener("input", render);
+$("#pastBtn").onclick = () => { showPast = !showPast; render(); };
 $("#file").addEventListener("change", async e => {
   const f = e.target.files[0]; if (!f) return;
-  try { const list = load(await f.arrayBuffer()); if (!list.length) throw 0; show(list, true); }
+  try { const d = load(await f.arrayBuffer()); if (!d.duty && !d.sheets.length) throw 0; show(d, true); }
   catch (err) { alert(t("rFail")); }
   e.target.value = "";
 });
@@ -315,7 +481,7 @@ I18N.mountPicker($("#lang"), render);
       const r = await fetch(encodeURI(f), { cache: "no-cache" });
       if (!r.ok) continue;
       published = load(await r.arrayBuffer());
-      if (published.length) { show(published, false); return; }
+      if (published.duty || published.sheets.length) { show(published, false); return; }
     } catch (e) {}
   }
   render(); fail();
