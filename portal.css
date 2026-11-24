@@ -1,0 +1,61 @@
+/* 공통 스타일 (그룹웨어 포털 느낌) */
+:root{
+  --bg:#f3f6f9; --card:#ffffff; --text:#2b2f36; --sub:#7a828c; --line:#dfe4ea; --bar:#eaf0f6;
+  --brand:#1a87cf; --brand-strong:#2563ad; --brand-soft:#e7f2fb;
+  --accent:#e98a90; --accent-soft:#fdeeef;
+  --high:#c62828; --high-soft:#fde8e8;
+  --mid:#b26a00; --mid-soft:#fff3dc;
+  --low:#2e6db4; --low-soft:#e6effa;
+  --done:#2e7d32; --done-soft:#e5f4e6;
+  --ph:#e9edf1;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#11161c; --card:#1a2129; --text:#e8edf2; --sub:#9aa6b4; --line:#2a333d; --bar:#161d25;
+    --brand:#2b8fd6; --brand-strong:#6fb2f0; --brand-soft:#16293c;
+    --accent:#e98a90; --accent-soft:#3a2224;
+    --high:#ff6b6b; --high-soft:#3a1d1f;
+    --mid:#f0a940; --mid-soft:#3a2c14;
+    --low:#6fa8ff; --low-soft:#182a44;
+    --done:#6fcf73; --done-soft:#1b3320;
+    --ph:#222b35;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",-apple-system,BlinkMacSystemFont,sans-serif;
+  line-height:1.5;-webkit-text-size-adjust:100%}
+
+/* 상단 바 */
+.topbar{background:var(--bar);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.topbar .in{max-width:1280px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--text)}
+.mark{display:inline-flex;align-items:flex-end;gap:3px;height:22px}
+.mark i{display:block;width:5px;height:22px;background:#1d4f91;border-radius:1px}
+.mark i+i{height:13px;background:#3aa548}
+.brand b{font-size:20px;font-weight:800;letter-spacing:-.6px}
+.brand span{font-size:13px;color:var(--sub);border-left:1px solid var(--line);padding-left:9px;white-space:nowrap}
+.gnb{order:3;width:100%;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:0 -6px}
+.gnb::-webkit-scrollbar{display:none}
+.gnb a,.gnb button{padding:6px 10px;font:inherit;font-size:15px;font-weight:700;color:var(--text);text-decoration:none;white-space:nowrap;border-radius:8px;background:none;border:0;cursor:pointer}
+.gnb a:hover,.gnb button:hover,.gnb .on{color:var(--brand-strong)}
+.gnb .on{box-shadow:inset 0 -3px 0 var(--brand-strong);border-radius:0}
+.langbox{margin-left:auto;display:flex;align-items:center;gap:6px}
+.lang{font:inherit;font-size:13px;font-weight:700;color:var(--brand-strong);background:var(--card);
+  border:2px solid var(--brand-strong);border-radius:999px;padding:3px 10px;max-width:150px;cursor:pointer}
+@media(min-width:900px){
+  .gnb{order:0;width:auto;flex:1;justify-content:center;gap:22px;margin:0}
+  .gnb a,.gnb button{font-size:16.5px}
+}
+
+/* 패널 */
+.panel{background:var(--card);border-top:2px solid #b9c4d0;border-bottom:1px solid var(--line)}
+.panel-h{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.panel-h h2{margin:0;font-size:17px;color:var(--brand-strong);letter-spacing:-.3px;display:flex;align-items:center;gap:6px}
+.panel-h .more{margin-left:auto;font-size:12.5px;color:var(--sub);font-weight:400}
+.panel-b{padding:6px 16px 14px}
+
+footer.foot{background:var(--bar);border-top:1px solid var(--line);font-size:12.5px;color:var(--sub);text-align:center;padding:18px 16px 110px}
+.demo{margin:0;font-size:12px;color:var(--sub)}
+.pnote{margin:2px 0 0;font-size:12px;color:var(--sub)}
+.pnote:empty{display:none}

@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>시정조치 현황</title>
+<link rel="stylesheet" href="portal.css">
+<style>
+.ptitle{padding:18px 0 4px}
+.ptitle h1{margin:0;font-size:22px;color:var(--brand-strong)}
+.ptitle p{margin:2px 0 0;font-size:13.5px;color:var(--sub)}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+  line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px 40px}
+.demo{margin:12px 0 0;font-size:12px;color:var(--sub);text-align:center}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:10px;text-align:center}
+.tile .k{font-size:11.5px;color:var(--sub)}
+.tile .v{font-size:22px;font-weight:700}
+.tile.red .v{color:var(--high)} .tile.green .v{color:var(--done)}
+.tools{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;width:100%}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--brand-strong);color:#fff;border-color:var(--brand-strong)}
+.pbtn{flex:1;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:6px 12px;font-size:13px;cursor:pointer}
+.ca{background:var(--card);border:1px solid var(--line);border-top:2px solid #b9c4d0;border-radius:4px;margin-top:12px;overflow:hidden}
+.ca-head{padding:12px 14px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.no{font-size:12px;color:var(--sub);font-weight:600}
+.badge{font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 7px}
+.b-high{background:var(--high-soft);color:var(--high)}
+.b-mid{background:var(--mid-soft);color:var(--mid)}
+.b-low{background:var(--low-soft);color:var(--low)}
+.st{margin-left:auto;font-size:12px;font-weight:700;border-radius:6px;padding:3px 8px}
+.st-open{background:var(--high-soft);color:var(--high)}
+.st-prog{background:var(--mid-soft);color:var(--mid)}
+.st-done{background:var(--done-soft);color:var(--done)}
+.st-over{background:var(--high);color:#fff}
+.ca-title{width:100%;font-weight:700;font-size:15.5px;margin-top:4px}
+.ca-meta{width:100%;font-size:12.5px;color:var(--sub)}
+.cols{display:grid;grid-template-columns:1fr}
+@media(min-width:620px){.cols{grid-template-columns:1fr 1fr}}
+.col{padding:12px 14px}
+.col + .col{border-top:1px solid var(--line)}
+@media(min-width:620px){.col + .col{border-top:0;border-left:1px solid var(--line)}}
+.col h3{margin:0 0 8px;font-size:13px;display:flex;align-items:center;gap:6px}
+.col.req h3{color:var(--high)} .col.fin h3{color:var(--done)}
+dl{margin:0;display:grid;grid-template-columns:72px 1fr;gap:4px 8px;font-size:13.5px}
+dt{color:var(--sub)} dd{margin:0}
+.photo{margin-top:10px;aspect-ratio:4/3;max-height:220px;width:100%;background:var(--ph);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:12.5px;overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover}
+.empty{color:var(--sub);font-size:13px;padding:18px 0;text-align:center;border:1px dashed var(--line);border-radius:10px}
+.ca-foot{padding:10px 14px;background:var(--bg);font-size:12.5px;color:var(--sub);border-top:1px solid var(--line)}
+.ca-foot b{color:var(--text)}
+.pr1{margin-left:8px;font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:8px;padding:2px 8px;cursor:pointer}
+
+/* ---------- 인쇄용 양식 ---------- */
+#print{display:none}
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff;color:#000}
+  header,.wrap{display:none}
+  #print{display:block}
+  .form{page-break-after:always;font-size:10.5pt}
+  .form:last-child{page-break-after:auto}
+  .form h1{text-align:center;font-size:16pt;margin:0 0 3mm;letter-spacing:2px}
+  .form .top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3mm}
+  .form .top small{font-size:9pt}
+  .sign{border-collapse:collapse}
+  .sign td,.sign th{border:1px solid #000;width:20mm;text-align:center;font-size:9pt;padding:1mm}
+  .sign td{height:14mm}
+  .ft{width:100%;border-collapse:collapse;margin-bottom:3mm}
+  .ft th,.ft td{border:1px solid #000;padding:2mm;vertical-align:top}
+  .ft th{background:#eee;width:28mm;font-weight:700;text-align:center;vertical-align:middle;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .ft .sec{background:#333;color:#fff;text-align:left;width:auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .ft .tall{height:16mm}
+  .ft .pics th{width:50%}
+  .ft .pic{height:42mm;width:50%;text-align:center;vertical-align:middle;color:#888}
+  .ft .pic img{max-width:100%;max-height:40mm}
+  .note{font-size:8.5pt;color:#444}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="in">
+    <a class="brand" href="index.html" id="back"><span class="mark" aria-hidden="true"><i></i><i></i></span><b>한솔제지</b><span data-i18n="title"></span></a>
+    <nav class="gnb">
+      <a href="index.html#results" class="navh" data-i18n="results"></a>
+      <a href="corrective.html" class="on" data-i18n="navCorrective"></a>
+      <a href="index.html#zones" class="navh" data-i18n="zones"></a>
+      <a href="index.html#sched" class="navh" data-i18n="schedule"></a>
+    </nav>
+    <div class="langbox"><span aria-hidden="true">🌐</span><select class="lang" id="lang" aria-label="Language"></select></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="ptitle"><h1 data-i18n="cTitle"></h1><p data-i18n="cSub"></p></div>
+  <p class="demo" data-i18n="demo"></p>
+  <p class="pnote" data-i18n="placeNote"></p>
+  <div class="tiles" id="tiles"></div>
+  <div class="tools">
+    <div class="chips" id="chips"></div>
+    <button class="pbtn" id="printAll" data-i18n="printAll"></button>
+    <button class="pbtn" id="printBlank" data-i18n="printBlank"></button>
+  </div>
+  <div id="list"></div>
+</div>
+
+<div id="print"></div>
+
+<script src="i18n.js"></script>
+<script>
+/* ===================================================
+   ▼ 안전팀이 수정하는 부분
+   - level(위험등급): high=상, mid=중, low=하
+   - 조치가 끝나면 doneDate(완료일)를 채우고, 안전팀 확인 후 checkDate(확인일)를 채웁니다.
+     완료일이 없으면 '조치중', 기한이 지나면 자동으로 '기한초과'로 표시됩니다.
+   - 사진: photos 폴더에 넣고 파일 이름을 적습니다 (예: "photos/001-전.jpg"). 비워 두면 칸만 표시됩니다.
+   - 공개 페이지이므로 개인 이름 대신 부서·업체명을 적으세요.
+   - 지적내용·요구조치 등을 외국어로도 보여 주려면 { ko:"..", en:"..", vi:".." } 형태로 적습니다.
+     (인쇄 양식은 항상 한국어로 나옵니다)
+   =================================================== */
+const ITEMS = [
+  {
+    no: "2026-11-001", patrolDate: "2026-11-24", patrolType: "정기순찰",
+    area: "펄프 공정 해리기 주변", type: "끼임", level: "high",
+    finding: "해리기 구동부 방호덮개 고정볼트 4개 중 2개 탈락, 덮개가 흔들려 회전부 노출 우려",
+    request: "즉시 볼트 체결 및 덮개 고정 상태 점검, 동일 설비 전수 점검",
+    owner: "펄프팀 (정비: ○○기공)", due: "2026-11-26",
+    photoBefore: "",
+    action: "", prevent: "", doneDate: "", photoAfter: "",
+    checker: "", checkDate: ""
+  },
+  {
+    no: "2026-11-002", patrolDate: "2026-11-23", patrolType: "정기순찰",
+    area: "초지 2호기 드라이어부 통로", type: "넘어짐", level: "mid",
+    finding: { ko: "베어링 윤활유 누유로 통로 바닥 약 2m 구간 미끄러움",
+               en: "Bearing oil leak — about 2 m of the walkway floor is slippery",
+               vi: "Dầu bôi trơn ổ bi rò rỉ, khoảng 2 m sàn lối đi bị trơn" },
+    request: "누유 부위 수리 및 바닥 청소, 흡착포 비치",
+    owner: "초지팀", due: "2026-11-25",
+    photoBefore: "",
+    action: "누유 배관 패킹 교체, 바닥 세척 후 흡착포 및 미끄럼 주의 표지 설치",
+    prevent: "주 1회 드라이어부 누유 점검 항목을 일상점검표에 추가",
+    doneDate: "2026-11-24", photoAfter: "",
+    checker: "안전환경팀", checkDate: "2026-11-24"
+  },
+  {
+    no: "2026-11-003", patrolDate: "2026-11-21", patrolType: "지게차 특별점검",
+    area: "출하장", type: "충돌", level: "high",
+    finding: "지게차 통로와 보행로 구분선이 퇴색되어 식별 불가",
+    request: "구분선 재도색, 보행로 녹색 도장 및 횡단 구간 반사경 설치",
+    owner: "물류팀 (협력: △△운송)", due: "2026-11-22",
+    photoBefore: "",
+    action: "", prevent: "", doneDate: "", photoAfter: "",
+    checker: "", checkDate: ""
+  },
+  {
+    no: "2026-11-004", patrolDate: "2026-11-20", patrolType: "합동순찰",
+    area: "정비동 용접 작업장 (협력사)", type: "화재", level: "high",
+    finding: "용접 작업 중 반경 5m 내 소화기 미비치, 불티 비산 방지포 없음",
+    request: "소화기 2대 및 비산 방지포 비치, 화기작업 허가서 확인 후 작업",
+    owner: "○○기공", due: "2026-11-20",
+    photoBefore: "",
+    action: "ABC 소화기 2대 비치, 방염포 설치, 화기감시자 지정",
+    prevent: "화기작업 허가서에 소화기·방염포 사진 첨부를 필수로 변경",
+    doneDate: "2026-11-20", photoAfter: "",
+    checker: "안전환경팀", checkDate: "2026-11-21"
+  }
+];
+/* =================== ▲ 수정 부분 끝 =================== */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LV = { high:["상","b-high"], mid:["중","b-mid"], low:["하","b-low"] };
+const t = (k, v) => I18N.t(k, v), tr = x => I18N.tr(x);
+const ST_KEY = { open:"prog", prog:"wait", over:"over", done:"done" };
+const today = new Date().toISOString().slice(0,10);
+const fmt = d => d ? d.slice(5).replace("-", ".") : "";
+
+function status(it){
+  if (it.doneDate && it.checkDate) return ["done","조치완료"];
+  if (it.doneDate) return ["prog","확인대기"];
+  if (it.due && it.due < today) return ["over","기한초과"];
+  return ["open","조치중"];
+}
+
+function render(){
+  const counts = {all:ITEMS.length, open:0, prog:0, over:0, done:0};
+  ITEMS.forEach(i => counts[status(i)[0]]++);
+  $("#back").href = "index.html?lang=" + I18N.lang;
+  document.querySelectorAll(".navh").forEach(a => a.href = "index.html?lang=" + I18N.lang + a.getAttribute("href").replace(/^[^#]*/, ""));
+  $("#tiles").innerHTML = [
+    [t("all"), counts.all, ""], [t("prog"), counts.open + counts.prog, ""],
+    [t("over"), counts.over, "red"], [t("completed"), counts.done, "green"]
+  ].map(([k,v,c]) => `<div class="tile ${c}"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+
+  const F = ["all","open","prog","over","done"].map(k => [k, t(k==="all" ? "all" : ST_KEY[k])]);
+  $("#chips").innerHTML = F.map(([k,l]) => `<button class="chip" aria-pressed="${filter===k}" data-f="${k}">${l}</button>`).join("");
+
+  const list = ITEMS.filter(i => filter==="all" || status(i)[0]===filter);
+  $("#list").innerHTML = list.map(it => {
+    const sk = status(it)[0], sl = t(ST_KEY[sk]);
+    const done = !!it.doneDate;
+    return `<article class="ca">
+      <div class="ca-head">
+        <span class="no">${esc(it.no)}</span>
+        <span class="badge ${LV[it.level][1]}">${esc(t("risk"))} ${esc(t(it.level))}</span>
+        <span class="badge" style="background:var(--bg);color:var(--sub)">${esc(tr(it.type))}</span>
+        <span class="st st-${sk}">${sl}</span>
+        <div class="ca-title">${esc(tr(it.finding))}</div>
+        <div class="ca-meta">📍 ${esc(it.area)} · ${esc(tr(it.patrolType))} ${fmt(it.patrolDate)}</div>
+      </div>
+      <div class="cols">
+        <div class="col req">
+          <h3>${esc(t("req"))}</h3>
+          <dl>
+            <dt>${esc(t("dRequest"))}</dt><dd>${esc(tr(it.request))}</dd>
+            <dt>${esc(t("dOwner"))}</dt><dd>${esc(it.owner)}</dd>
+            <dt>${esc(t("dDue"))}</dt><dd${sk==="over"?' style="color:var(--high);font-weight:700"':''}>${fmt(it.due)}</dd>
+          </dl>
+          ${it.photoBefore ? `<div class="photo"><img src="${esc(it.photoBefore)}" alt="조치 전"></div>` : ""}
+        </div>
+        <div class="col fin">
+          <h3>${esc(t("fin"))}</h3>
+          ${done ? `<dl>
+            <dt>${esc(t("dAction"))}</dt><dd>${esc(tr(it.action))}</dd>
+            <dt>${esc(t("dPrevent"))}</dt><dd>${esc(tr(it.prevent)) || "-"}</dd>
+            <dt>${esc(t("dDone"))}</dt><dd>${fmt(it.doneDate)}</dd>
+          </dl>
+          ${it.photoAfter ? `<div class="photo"><img src="${esc(it.photoAfter)}" alt="조치 후"></div>` : ""}`
+          : `<div class="empty">${esc(t("notYet"))}</div>`}
+        </div>
+      </div>
+      <div class="ca-foot">${esc(t("chk"))}: ${it.checkDate ? t("chkDone", { who: `<b>${esc(it.checker)}</b>`, date: fmt(it.checkDate) }) : esc(t("chkNone"))}
+        <button class="pr1" data-no="${esc(it.no)}">${esc(t("printOne"))}</button></div>
+    </article>`;
+  }).join("") || `<div class="empty" style="margin-top:12px">${esc(t("none"))}</div>`;
+}
+
+/* ---------- 인쇄 양식 ---------- */
+function form(it){
+  const v = k => esc(it[k] && typeof it[k] === "object" ? it[k].ko : it[k]);
+  const img = (src, l) => src ? `<img src="${esc(src)}">` : l;
+  const lv = it.level ? LV[it.level][0] : "";
+  return `<div class="form">
+    <div class="top">
+      <small>관리번호: ${v("no") || "&nbsp;".repeat(24)}</small>
+      <table class="sign"><tr><th>작성</th><th>검토</th><th>승인</th></tr><tr><td></td><td></td><td></td></tr></table>
+    </div>
+    <h1>시정조치 요구 및 완료 보고서</h1>
+    <table class="ft">
+      <tr><th>순찰일</th><td>${v("patrolDate")}</td><th>순찰구분</th><td>${v("patrolType")}</td></tr>
+      <tr><th>장소</th><td>${v("area")}</td><th>위험유형/등급</th><td>${v("type")}${lv ? " / " + lv : ""}</td></tr>
+      <tr><th>조치대상</th><td>${v("owner")}</td><th>조치기한</th><td>${v("due")}</td></tr>
+    </table>
+    <table class="ft">
+      <tr><th class="sec" colspan="2">1. 시정조치 요구사항</th></tr>
+      <tr><th>지적내용</th><td class="tall">${v("finding")}</td></tr>
+      <tr><th>요구조치</th><td class="tall">${v("request")}</td></tr>
+    </table>
+    <table class="ft">
+      <tr><th class="sec" colspan="4">2. 시정조치 완료사항</th></tr>
+      <tr><th>조치내용</th><td class="tall" colspan="3">${v("action")}</td></tr>
+      <tr><th>재발방지<br>대책</th><td class="tall" colspan="3">${v("prevent")}</td></tr>
+      <tr><th>완료일</th><td>${v("doneDate")}</td><th>조치자 서명</th><td></td></tr>
+    </table>
+    <table class="ft pics">
+      <tr><th class="sec">사진 · 조치 전</th><th class="sec">사진 · 조치 후</th></tr>
+      <tr><td class="pic">${img(it.photoBefore, "사진 첨부")}</td><td class="pic">${img(it.photoAfter, "사진 첨부")}</td></tr>
+    </table>
+    <table class="ft">
+      <tr><th class="sec" colspan="4">3. 확인</th></tr>
+      <tr><th>확인부서</th><td>${v("checker")}</td><th>확인일</th><td>${v("checkDate")}</td></tr>
+      <tr><th>확인결과</th><td colspan="3">□ 적합 &nbsp;&nbsp; □ 부적합 (재조치 요구: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td></tr>
+    </table>
+    <p class="note">※ 위험등급 '상'은 즉시 작업중지 후 조치, 조치 완료 후 안전환경팀 확인을 받아야 작업을 재개할 수 있습니다.</p>
+  </div>`;
+}
+function printItems(items){
+  $("#print").innerHTML = items.map(form).join("");
+  window.print();
+}
+
+let filter = "all";
+$("#chips").addEventListener("click", e => { if (e.target.dataset.f){ filter = e.target.dataset.f; render(); }});
+$("#list").addEventListener("click", e => {
+  const no = e.target.dataset.no;
+  if (no) printItems(ITEMS.filter(i => i.no === no));
+});
+$("#printAll").onclick = () => printItems(ITEMS.filter(i => filter==="all" || status(i)[0]===filter));
+$("#printBlank").onclick = () => printItems([{}]);
+I18N.mountPicker($("#lang"), render);
+render();
+</script>
+</body>
+</html>
